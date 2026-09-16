@@ -110,6 +110,65 @@ DOMAIN-SUFFIX,example.com,"🟢 Proxy"
 # socks5-listen = 0.0.0.0
 ```
 
+## 可选：券商分流
+
+炒港美股的用户可以加上 [forecho/broker-rules](https://github.com/forecho/broker-rules)，把富途、长桥、老虎、嘉信、雪球、华盛通、复星等券商 App 的流量固定到一个地区（一般走香港或新加坡，避免出口地区漂移触发风控）。模板默认不包含，按下面的方式加上即可，规则放在**规则区开头**（和个人规则同一位置），保证优先于 CDN / 海外域名等通用规则。
+
+### Surge
+
+`[Proxy Group]` 加一个分组：
+
+```
+💹 券商 = select, "🇭🇰 香港", "🇸🇬 新加坡", "🇺🇸 美国", "🟢 Proxy"
+```
+
+`[Rule]` 开头加一行：
+
+```
+RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Surge/Broker.list,"💹 券商"
+```
+
+### Clash Meta (mihomo)
+
+```yaml
+proxy-groups:
+  - name: 💹 券商
+    type: select
+    proxies:
+      - 🇭🇰 香港
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 🟢 Proxy
+
+rule-providers:
+  broker:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Clash/Broker.yaml
+    path: ./rules/broker.yaml
+    interval: 86400
+
+rules:
+  - RULE-SET,broker,💹 券商
+```
+
+### Stash
+
+和 Clash 一样，只是 `rule-providers` 不写 `type: http`，URL 换成 Stash 版本：
+
+```yaml
+rule-providers:
+  broker:
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Stash/Broker.yaml
+    path: ./rules/broker.yaml
+    interval: 86400
+```
+
+> broker-rules 还单独提供了 [Topstep](https://github.com/forecho/broker-rules#怎么用) 期货规则，用法相同，一般配成直连。
+
 ## 常见问题
 
 **地区分组里没有节点 / 节点少了？**

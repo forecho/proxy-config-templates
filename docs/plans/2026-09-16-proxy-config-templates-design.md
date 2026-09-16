@@ -31,7 +31,7 @@
 ## 剔除的原配置内容
 
 - 单条 `DOMAIN-SUFFIX` / `PROCESS-NAME` 个人规则
-- broker-rules / Topstep 券商规则及 `💹 券商` 组
+- broker-rules / Topstep 券商规则及 `💹 券商` 组（作为可选项在 README 里给出加回方法）
 - 无规则引用的 `🚫 运营劫持`、`🌏 国内媒体` 组
 - 个人 gist 规则、raw.githubusercontent 源的 Discord 规则
 - 注释掉的分地区流媒体规则
