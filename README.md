@@ -179,11 +179,9 @@ rule-providers:
 
 ## 可选：银行直连
 
-众安银行、HSBC HK、大象银行、Wise 这类银行 App 会检测客户端 IP，走代理会直接登不上或者被风控，需要固定直连。模板默认不包含，按下面的方式加上，同样放在**规则区开头**。
+众安银行、HSBC HK、大象银行、Wise 这类银行 App 会检测客户端 IP，走代理会直接登不上或者被风控，需要固定直连。[forecho/broker-rules](https://github.com/forecho/broker-rules) 提供了单独的 Bank 规则集（源自 [yeahwu/Rules-For-Quantumult-X](https://github.com/yeahwu/Rules-For-Quantumult-X/blob/main/Rules/Services/Bank.list)），模板默认不包含，接入方式和券商一样，同样放在**规则区开头**。
 
-规则来自 [yeahwu/Rules-For-Quantumult-X](https://github.com/yeahwu/Rules-For-Quantumult-X/blob/main/Rules/Services/Bank.list)。上游是 Quantumult X 格式（`HOST` / `HOST-SUFFIX`），Surge / Clash / Stash 都不识别，没法直接订阅，所以下面已经转成 `DOMAIN` / `DOMAIN-SUFFIX` 内联写法，上游有更新需要手动同步。
-
-> 列表里混了几个通用 SDK 域名（`crashlytics.com`、`app-measurement.com`、`appsflyersdk.com`、`cdn.optimizely.com`、`api.mixpanel.com` 等），这些是银行 App 启动时会连的埋点 / 反欺诈服务，走代理同样可能触发风控，所以一并直连。副作用是其它 App 的埋点上报也会直连，基本无感。
+> 规则里包含几个银行 App 会连的通用 SDK 域名（`crashlytics.com`、`app-measurement.com`、`appsflyersdk.com` 等），走代理同样可能触发风控，所以一并直连。副作用是其它 App 的埋点上报也会直连，基本无感。
 
 ### Surge
 
@@ -193,36 +191,13 @@ rule-providers:
 🏦 银行 = select, "🚀 直接连接", "🇭🇰 香港", "🟢 Proxy"
 ```
 
-`[Rule]` 开头加：
+`[Rule]` 开头加一行：
 
 ```
-DOMAIN,c-hsbc.lytics.io,"🏦 银行"
-DOMAIN,mobile.eum-appdynamics.com,"🏦 银行"
-DOMAIN,tags.tiqcdn.com,"🏦 银行"
-DOMAIN,hsbc.edge.sdk.awswaf.com,"🏦 银行"
-DOMAIN,cdnbc.wup.hsbc.com.hk,"🏦 银行"
-DOMAIN,cdn.optimizely.com,"🏦 银行"
-DOMAIN,log-58144bf0.we-stats.com,"🏦 银行"
-DOMAIN-SUFFIX,tealiumiq.com,"🏦 银行"
-DOMAIN-SUFFIX,hsbc.com.hk,"🏦 银行"
-DOMAIN-SUFFIX,online-metrix.net,"🏦 银行"
-DOMAIN-SUFFIX,cloud1.vv1865.com,"🏦 银行"
-DOMAIN-SUFFIX,liveperson.net,"🏦 银行"
-DOMAIN-SUFFIX,lpsnmedia.net,"🏦 银行"
-DOMAIN-SUFFIX,elebank.com,"🏦 银行"
-DOMAIN-SUFFIX,appsflyersdk.com,"🏦 银行"
-DOMAIN-SUFFIX,za.group,"🏦 银行"
-DOMAIN-SUFFIX,zainvest.group,"🏦 银行"
-DOMAIN-SUFFIX,crashlytics.com,"🏦 银行"
-DOMAIN-SUFFIX,zajourney.com,"🏦 银行"
-DOMAIN,app-measurement.com,"🏦 银行"
-DOMAIN,api.mixpanel.com,"🏦 银行"
-DOMAIN-SUFFIX,wise.com,"🏦 银行"
+RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Surge/Bank.list,"🏦 银行"
 ```
 
-### Clash Meta (mihomo) / Stash
-
-两者写法相同：
+### Clash Meta (mihomo)
 
 ```yaml
 proxy-groups:
@@ -233,29 +208,31 @@ proxy-groups:
       - 🇭🇰 香港
       - 🟢 Proxy
 
+rule-providers:
+  bank:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Clash/Bank.yaml
+    path: ./rules/bank.yaml
+    interval: 86400
+
 rules:
-  - DOMAIN,c-hsbc.lytics.io,🏦 银行
-  - DOMAIN,mobile.eum-appdynamics.com,🏦 银行
-  - DOMAIN,tags.tiqcdn.com,🏦 银行
-  - DOMAIN,hsbc.edge.sdk.awswaf.com,🏦 银行
-  - DOMAIN,cdnbc.wup.hsbc.com.hk,🏦 银行
-  - DOMAIN,cdn.optimizely.com,🏦 银行
-  - DOMAIN,log-58144bf0.we-stats.com,🏦 银行
-  - DOMAIN-SUFFIX,tealiumiq.com,🏦 银行
-  - DOMAIN-SUFFIX,hsbc.com.hk,🏦 银行
-  - DOMAIN-SUFFIX,online-metrix.net,🏦 银行
-  - DOMAIN-SUFFIX,cloud1.vv1865.com,🏦 银行
-  - DOMAIN-SUFFIX,liveperson.net,🏦 银行
-  - DOMAIN-SUFFIX,lpsnmedia.net,🏦 银行
-  - DOMAIN-SUFFIX,elebank.com,🏦 银行
-  - DOMAIN-SUFFIX,appsflyersdk.com,🏦 银行
-  - DOMAIN-SUFFIX,za.group,🏦 银行
-  - DOMAIN-SUFFIX,zainvest.group,🏦 银行
-  - DOMAIN-SUFFIX,crashlytics.com,🏦 银行
-  - DOMAIN-SUFFIX,zajourney.com,🏦 银行
-  - DOMAIN,app-measurement.com,🏦 银行
-  - DOMAIN,api.mixpanel.com,🏦 银行
-  - DOMAIN-SUFFIX,wise.com,🏦 银行
+  - RULE-SET,bank,🏦 银行
+```
+
+### Stash
+
+和 Clash 一样，只是 `rule-providers` 不写 `type: http`，URL 换成 Stash 版本：
+
+```yaml
+rule-providers:
+  bank:
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Stash/Bank.yaml
+    path: ./rules/bank.yaml
+    interval: 86400
 ```
 
 ## 常见问题
