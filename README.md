@@ -169,6 +169,87 @@ rule-providers:
 
 > broker-rules 还单独提供了 [Topstep](https://github.com/forecho/broker-rules#怎么用) 期货规则，用法相同，一般配成直连。
 
+## 可选：银行直连
+
+众安银行、HSBC HK、大象银行、Wise 这类银行 App 会检测客户端 IP，走代理会直接登不上或者被风控，需要固定直连。模板默认不包含，按下面的方式加上，同样放在**规则区开头**。
+
+规则来自 [yeahwu/Rules-For-Quantumult-X](https://github.com/yeahwu/Rules-For-Quantumult-X/blob/main/Rules/Services/Bank.list)。上游是 Quantumult X 格式（`HOST` / `HOST-SUFFIX`），Surge / Clash / Stash 都不识别，没法直接订阅，所以下面已经转成 `DOMAIN` / `DOMAIN-SUFFIX` 内联写法，上游有更新需要手动同步。
+
+> 列表里混了几个通用 SDK 域名（`crashlytics.com`、`app-measurement.com`、`appsflyersdk.com`、`cdn.optimizely.com`、`api.mixpanel.com` 等），这些是银行 App 启动时会连的埋点 / 反欺诈服务，走代理同样可能触发风控，所以一并直连。副作用是其它 App 的埋点上报也会直连，基本无感。
+
+### Surge
+
+`[Proxy Group]` 加一个分组，第一项 `🚀 直接连接` 就是默认值：
+
+```
+🏦 银行 = select, "🚀 直接连接", "🇭🇰 香港", "🟢 Proxy"
+```
+
+`[Rule]` 开头加：
+
+```
+DOMAIN,c-hsbc.lytics.io,"🏦 银行"
+DOMAIN,mobile.eum-appdynamics.com,"🏦 银行"
+DOMAIN,tags.tiqcdn.com,"🏦 银行"
+DOMAIN,hsbc.edge.sdk.awswaf.com,"🏦 银行"
+DOMAIN,cdnbc.wup.hsbc.com.hk,"🏦 银行"
+DOMAIN,cdn.optimizely.com,"🏦 银行"
+DOMAIN,log-58144bf0.we-stats.com,"🏦 银行"
+DOMAIN-SUFFIX,tealiumiq.com,"🏦 银行"
+DOMAIN-SUFFIX,hsbc.com.hk,"🏦 银行"
+DOMAIN-SUFFIX,online-metrix.net,"🏦 银行"
+DOMAIN-SUFFIX,cloud1.vv1865.com,"🏦 银行"
+DOMAIN-SUFFIX,liveperson.net,"🏦 银行"
+DOMAIN-SUFFIX,lpsnmedia.net,"🏦 银行"
+DOMAIN-SUFFIX,elebank.com,"🏦 银行"
+DOMAIN-SUFFIX,appsflyersdk.com,"🏦 银行"
+DOMAIN-SUFFIX,za.group,"🏦 银行"
+DOMAIN-SUFFIX,zainvest.group,"🏦 银行"
+DOMAIN-SUFFIX,crashlytics.com,"🏦 银行"
+DOMAIN-SUFFIX,zajourney.com,"🏦 银行"
+DOMAIN,app-measurement.com,"🏦 银行"
+DOMAIN,api.mixpanel.com,"🏦 银行"
+DOMAIN-SUFFIX,wise.com,"🏦 银行"
+```
+
+### Clash Meta (mihomo) / Stash
+
+两者写法相同：
+
+```yaml
+proxy-groups:
+  - name: 🏦 银行
+    type: select
+    proxies:
+      - 🚀 直接连接
+      - 🇭🇰 香港
+      - 🟢 Proxy
+
+rules:
+  - DOMAIN,c-hsbc.lytics.io,🏦 银行
+  - DOMAIN,mobile.eum-appdynamics.com,🏦 银行
+  - DOMAIN,tags.tiqcdn.com,🏦 银行
+  - DOMAIN,hsbc.edge.sdk.awswaf.com,🏦 银行
+  - DOMAIN,cdnbc.wup.hsbc.com.hk,🏦 银行
+  - DOMAIN,cdn.optimizely.com,🏦 银行
+  - DOMAIN,log-58144bf0.we-stats.com,🏦 银行
+  - DOMAIN-SUFFIX,tealiumiq.com,🏦 银行
+  - DOMAIN-SUFFIX,hsbc.com.hk,🏦 银行
+  - DOMAIN-SUFFIX,online-metrix.net,🏦 银行
+  - DOMAIN-SUFFIX,cloud1.vv1865.com,🏦 银行
+  - DOMAIN-SUFFIX,liveperson.net,🏦 银行
+  - DOMAIN-SUFFIX,lpsnmedia.net,🏦 银行
+  - DOMAIN-SUFFIX,elebank.com,🏦 银行
+  - DOMAIN-SUFFIX,appsflyersdk.com,🏦 银行
+  - DOMAIN-SUFFIX,za.group,🏦 银行
+  - DOMAIN-SUFFIX,zainvest.group,🏦 银行
+  - DOMAIN-SUFFIX,crashlytics.com,🏦 银行
+  - DOMAIN-SUFFIX,zajourney.com,🏦 银行
+  - DOMAIN,app-measurement.com,🏦 银行
+  - DOMAIN,api.mixpanel.com,🏦 银行
+  - DOMAIN-SUFFIX,wise.com,🏦 银行
+```
+
 ## 常见问题
 
 **地区分组里没有节点 / 节点少了？**
