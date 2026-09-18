@@ -32,7 +32,10 @@ Shadowrocket / Surge / Clash Meta (mihomo) / Stash 四端通用的**基础分流
 
 ## 使用方法
 
-### Shadowrocket（不用改任何东西）
+Shadowrocket 不用改文件；其它三个客户端只需把模板里的占位符 `https://example.com/YOUR_SUBSCRIPTION_URL` 换成你的机场订阅链接。点开对应客户端查看步骤：
+
+<details>
+<summary><b>Shadowrocket（不用改任何东西）</b></summary>
 
 Shadowrocket 把「订阅」和「配置」分开管理，模板会自动从你首页的所有节点里按名字筛出各地区，所以**不需要编辑文件、不需要填订阅地址**：
 
@@ -52,15 +55,10 @@ shadowrocket://config/add/https://cdn.jsdelivr.net/gh/forecho/proxy-config-templ
 
 > 以后模板有更新，在 配置 → 点击该配置 → **更新** 即可拉取最新版；规则集本身会在「使用配置」时自动更新。
 
----
+</details>
 
-下面三个客户端需要把模板里的占位符换成你的机场订阅链接，只改这一行：
-
-```
-https://example.com/YOUR_SUBSCRIPTION_URL
-```
-
-### Surge
+<details>
+<summary><b>Surge</b></summary>
 
 1. 下载 `surge/Surge.conf`
 2. 用文本编辑器打开，找到 `[Proxy Group]` 里的这一行：
@@ -74,7 +72,10 @@ https://example.com/YOUR_SUBSCRIPTION_URL
 
 > 机场订阅需要支持 Surge 格式（`policy-path` 拉取的是 Surge 节点列表）。绝大多数机场会根据 User-Agent 自动返回对应格式，如果不行，请到机场后台找「Surge 订阅」链接。
 
-### Clash Meta (mihomo)
+</details>
+
+<details>
+<summary><b>Clash Meta (mihomo)</b></summary>
 
 1. 下载 `clash/Clash.yaml`
 2. 找到 `proxy-providers` 段：
@@ -92,11 +93,16 @@ https://example.com/YOUR_SUBSCRIPTION_URL
 
 > 模板用了 `filter`、`format: text`、`REJECT-DROP` 等 mihomo 特性，**原版 Clash Premium 内核不兼容**。
 
-### Stash
+</details>
+
+<details>
+<summary><b>Stash</b></summary>
 
 1. 下载 `stash/Stash.yaml`
 2. 和 Clash 一样，把 `proxy-providers` 里的 `url` 换成你的订阅链接（Clash 格式）
 3. 导入：Stash → 配置 → 右上角「+」→ 从文件 / iCloud 导入
+
+</details>
 
 ## 策略组说明
 
@@ -154,7 +160,8 @@ Shadowrocket 远程配置改完本地会被「更新」覆盖，建议在 配置
 
 炒港美股的用户可以加上 [forecho/broker-rules](https://github.com/forecho/broker-rules)，把富途、长桥、老虎、嘉信、雪球、华盛通、复星等券商 App 的流量固定到一个地区（一般走香港或新加坡，避免出口地区漂移触发风控）。模板默认不包含，按下面的方式加上即可，规则放在**规则区开头**（和个人规则同一位置），保证优先于 CDN / 海外域名等通用规则。
 
-### Shadowrocket
+<details>
+<summary><b>Shadowrocket</b></summary>
 
 `[Proxy Group]` 加一个分组：
 
@@ -168,7 +175,10 @@ Shadowrocket 远程配置改完本地会被「更新」覆盖，建议在 配置
 RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Shadowrocket/Broker.list,💹 券商
 ```
 
-### Surge
+</details>
+
+<details>
+<summary><b>Surge</b></summary>
 
 `[Proxy Group]` 加一个分组：
 
@@ -182,7 +192,10 @@ RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Shadowrocket
 RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Surge/Broker.list,"💹 券商"
 ```
 
-### Clash Meta (mihomo)
+</details>
+
+<details>
+<summary><b>Clash Meta (mihomo)</b></summary>
 
 ```yaml
 proxy-groups:
@@ -207,7 +220,10 @@ rules:
   - RULE-SET,broker,💹 券商
 ```
 
-### Stash
+</details>
+
+<details>
+<summary><b>Stash</b></summary>
 
 和 Clash 一样，只是 `rule-providers` 不写 `type: http`，URL 换成 Stash 版本：
 
@@ -221,6 +237,8 @@ rule-providers:
     interval: 86400
 ```
 
+</details>
+
 > broker-rules 还单独提供了 [Topstep](https://github.com/forecho/broker-rules#怎么用) 期货规则，用法相同，一般配成直连。
 
 ## 可选：银行直连
@@ -229,7 +247,8 @@ rule-providers:
 
 > 规则里包含几个银行 App 会连的通用 SDK 域名（`crashlytics.com`、`app-measurement.com`、`appsflyersdk.com` 等），走代理同样可能触发风控，所以一并直连。副作用是其它 App 的埋点上报也会直连，基本无感。
 
-### Shadowrocket
+<details>
+<summary><b>Shadowrocket</b></summary>
 
 `[Proxy Group]` 加一个分组，第一项 `🚀 直接连接` 就是默认值：
 
@@ -243,7 +262,10 @@ rule-providers:
 RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Shadowrocket/Bank.list,🏦 银行
 ```
 
-### Surge
+</details>
+
+<details>
+<summary><b>Surge</b></summary>
 
 `[Proxy Group]` 加一个分组，第一项 `🚀 直接连接` 就是默认值：
 
@@ -257,7 +279,10 @@ RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Shadowrocket
 RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Surge/Bank.list,"🏦 银行"
 ```
 
-### Clash Meta (mihomo)
+</details>
+
+<details>
+<summary><b>Clash Meta (mihomo)</b></summary>
 
 ```yaml
 proxy-groups:
@@ -281,7 +306,10 @@ rules:
   - RULE-SET,bank,🏦 银行
 ```
 
-### Stash
+</details>
+
+<details>
+<summary><b>Stash</b></summary>
 
 和 Clash 一样，只是 `rule-providers` 不写 `type: http`，URL 换成 Stash 版本：
 
@@ -294,6 +322,8 @@ rule-providers:
     path: ./rules/bank.yaml
     interval: 86400
 ```
+
+</details>
 
 ## 常见问题
 
