@@ -10,6 +10,17 @@ Shadowrocket / Surge / Clash Meta (mihomo) / Stash 四端通用的**基础分流
 
 > 上图是作者自己 Surge 里的效果，比模板多了券商、银行等几个私人分组；模板里的 `♻️ 自动选择` 对应图中的 `smart Group`。
 
+## 赞助
+
+<table>
+<tbody>
+<tr>
+<td width="180"><a href="https://vip.dd8008.com/"><img src="./assets/duoduoyun.png" alt="朵朵云加速" width="150"></a></td>
+<td>感谢 <a href="https://vip.dd8008.com/">朵朵云加速</a> 对本项目的赞助！朵朵云加速是一家主打<b>快速稳定</b>的机场，订阅地址填进本仓库的模板即可直接使用，不用再自己折腾分流。 👉 <a href="https://vip.dd8008.com/">https://vip.dd8008.com/</a></td>
+</tr>
+</tbody>
+</table>
+
 ## 文件说明
 
 | 客户端 | 文件 | 适用 App | 下载链接 |
@@ -211,6 +222,78 @@ rule-providers:
 ```
 
 > broker-rules 还单独提供了 [Topstep](https://github.com/forecho/broker-rules#怎么用) 期货规则，用法相同，一般配成直连。
+
+## 可选：银行直连
+
+众安银行、HSBC HK、大象银行、Wise 这类银行 App 会检测客户端 IP，走代理会直接登不上或者被风控，需要固定直连。[forecho/broker-rules](https://github.com/forecho/broker-rules) 提供了单独的 Bank 规则集（源自 [yeahwu/Rules-For-Quantumult-X](https://github.com/yeahwu/Rules-For-Quantumult-X/blob/main/Rules/Services/Bank.list)），模板默认不包含，接入方式和券商一样，同样放在**规则区开头**。
+
+> 规则里包含几个银行 App 会连的通用 SDK 域名（`crashlytics.com`、`app-measurement.com`、`appsflyersdk.com` 等），走代理同样可能触发风控，所以一并直连。副作用是其它 App 的埋点上报也会直连，基本无感。
+
+### Shadowrocket
+
+`[Proxy Group]` 加一个分组，第一项 `🚀 直接连接` 就是默认值：
+
+```
+🏦 银行 = select,🚀 直接连接,🇭🇰 香港,🟢 Proxy
+```
+
+`[Rule]` 开头加一行：
+
+```
+RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Shadowrocket/Bank.list,🏦 银行
+```
+
+### Surge
+
+`[Proxy Group]` 加一个分组，第一项 `🚀 直接连接` 就是默认值：
+
+```
+🏦 银行 = select, "🚀 直接连接", "🇭🇰 香港", "🟢 Proxy"
+```
+
+`[Rule]` 开头加一行：
+
+```
+RULE-SET,https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Surge/Bank.list,"🏦 银行"
+```
+
+### Clash Meta (mihomo)
+
+```yaml
+proxy-groups:
+  - name: 🏦 银行
+    type: select
+    proxies:
+      - 🚀 直接连接
+      - 🇭🇰 香港
+      - 🟢 Proxy
+
+rule-providers:
+  bank:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Clash/Bank.yaml
+    path: ./rules/bank.yaml
+    interval: 86400
+
+rules:
+  - RULE-SET,bank,🏦 银行
+```
+
+### Stash
+
+和 Clash 一样，只是 `rule-providers` 不写 `type: http`，URL 换成 Stash 版本：
+
+```yaml
+rule-providers:
+  bank:
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/forecho/broker-rules@main/rule/Stash/Bank.yaml
+    path: ./rules/bank.yaml
+    interval: 86400
+```
 
 ## 常见问题
 
